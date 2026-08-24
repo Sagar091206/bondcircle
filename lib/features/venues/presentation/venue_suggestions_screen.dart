@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/bondcircle_theme.dart';
+import '../../safety/presentation/safety_check_in_screen.dart';
 
 class VenueSuggestionsScreen extends StatefulWidget {
   const VenueSuggestionsScreen({
@@ -383,9 +384,17 @@ class _SelectedVenueScreen extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         FilledButton.icon(
-          onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Friend-Trust Safety Check-in is coming next.'),
+          key: const Key('setupSafetyCheckInButton'),
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => SafetyCheckInScreen(
+                matchName: matchName,
+                planTitle: title,
+                venueName: venue.name,
+                venueArea: venue.area,
+                date: date,
+                time: time,
+              ),
             ),
           ),
           icon: const Icon(Icons.verified_user_outlined),

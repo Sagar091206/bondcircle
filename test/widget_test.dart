@@ -6,6 +6,7 @@ import 'package:bondcircle/features/vibe_check/presentation/vibe_check_screen.da
 import 'package:bondcircle/features/chat/presentation/chat_screen.dart';
 import 'package:bondcircle/features/meetup/presentation/meetup_planner_screen.dart';
 import 'package:bondcircle/features/venues/presentation/venue_suggestions_screen.dart';
+import 'package:bondcircle/features/safety/presentation/safety_check_in_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -182,5 +183,41 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Venue selected!'), findsOneWidget);
     expect(find.text('Pixel Playground'), findsOneWidget);
+  });
+
+  testWidgets('safety check-in validates and confirms trusted contact', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SafetyCheckInScreen(
+          matchName: 'Aarohi',
+          planTitle: 'Coffee and stories',
+          venueName: 'Paper & Bean',
+          venueArea: 'Park Street',
+          date: DateTime(2026, 8, 28),
+          time: '4:00 PM',
+        ),
+      ),
+    );
+
+    await tester.tap(find.byKey(const Key('activateSafetyCheckInButton')));
+    await tester.pump();
+    expect(find.text('Enter your trusted contact’s name'), findsOneWidget);
+    await tester.enterText(
+      find.byKey(const Key('trustedContactNameField')),
+      'Riya',
+    );
+    await tester.enterText(
+      find.byKey(const Key('trustedContactPhoneField')),
+      '9876543210',
+    );
+    await tester.tap(find.byKey(const Key('activateSafetyCheckInButton')));
+    await tester.pumpAndSettle();
+    expect(find.text('Your safety check-in is ready'), findsOneWidget);
+    expect(
+      find.textContaining('Riya will be your trusted contact'),
+      findsOneWidget,
+    );
   });
 }
