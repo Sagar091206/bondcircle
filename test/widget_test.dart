@@ -34,6 +34,41 @@ void main() {
     );
   });
 
+  testWidgets('sign in and sign up open different flows', (tester) async {
+    await tester.pumpWidget(const BondCircleApp());
+    await tester.enterText(
+      find.byKey(const Key('emailField')),
+      'sagar@example.com',
+    );
+    await tester.enterText(
+      find.byKey(const Key('passwordField')),
+      'password123',
+    );
+    await tester.ensureVisible(find.byKey(const Key('continueButton')));
+    await tester.tap(find.byKey(const Key('continueButton')));
+    await tester.pumpAndSettle();
+    expect(find.text('People in your circles'), findsOneWidget);
+    expect(find.text('Create profile'), findsNothing);
+
+    await tester.pumpWidget(BondCircleApp(key: UniqueKey()));
+    await tester.tap(find.byKey(const Key('signupTab')));
+    await tester.pump();
+    await tester.enterText(find.byKey(const Key('nameField')), 'New User');
+    await tester.enterText(
+      find.byKey(const Key('emailField')),
+      'new@example.com',
+    );
+    await tester.enterText(
+      find.byKey(const Key('passwordField')),
+      'password123',
+    );
+    await tester.ensureVisible(find.byKey(const Key('continueButton')));
+    await tester.tap(find.byKey(const Key('continueButton')));
+    await tester.pumpAndSettle();
+    expect(find.text('Create profile'), findsOneWidget);
+    expect(find.text('People in your circles'), findsNothing);
+  });
+
   testWidgets('profile setup validates required details', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(home: ProfileSetupScreen(initialName: 'Sagar')),

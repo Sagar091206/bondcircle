@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/bondcircle_theme.dart';
-import '../../home/presentation/home_preview_screen.dart';
+import '../../discover/presentation/discover_screen.dart';
+import '../../profile/presentation/profile_setup_screen.dart';
 
 enum AuthMode { login, signup }
 
@@ -42,9 +43,16 @@ class _AuthScreenState extends State<AuthScreen> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
-        builder: (_) => HomePreviewScreen(
-          displayName: _isSignup ? _nameController.text.trim() : 'Sagar',
-        ),
+        builder: (_) => _isSignup
+            ? ProfileSetupScreen(initialName: _nameController.text.trim())
+            : const DiscoverScreen(
+                displayName: 'Sagar',
+                joinedCircles: [
+                  'Coffee Explorers',
+                  'Readers & Stories',
+                  'Weekend Trekkers',
+                ],
+              ),
       ),
     );
   }
