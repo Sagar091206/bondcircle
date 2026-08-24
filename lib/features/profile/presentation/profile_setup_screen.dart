@@ -31,6 +31,19 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final _bioController = TextEditingController();
   final Set<String> _interests = {};
   final List<String> _customInterests = [];
+  final Set<String> _datingPreferences = {};
+  String? _gender;
+  String? _sexuality;
+  String? _datingIntention;
+  String? _relationshipStyle;
+  String? _childrenPlan;
+  String? _religion;
+  String? _politics;
+  String? _drinking;
+  String? _smoking;
+  bool _showIdentity = true;
+  bool _showValues = false;
+  bool _showLifestyle = true;
   int _step = 0;
 
   @override
@@ -56,8 +69,31 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       );
       return;
     }
-    if (_step < 2) setState(() => _step++);
+    if (_step == 2 &&
+        (_gender == null || _sexuality == null || _datingPreferences.isEmpty)) {
+      _message('Complete the identity and dating preferences to continue.');
+      return;
+    }
+    if (_step == 3 &&
+        (_datingIntention == null ||
+            _relationshipStyle == null ||
+            _childrenPlan == null)) {
+      _message('Choose your connection preferences to continue.');
+      return;
+    }
+    if (_step == 4 &&
+        (_religion == null ||
+            _politics == null ||
+            _drinking == null ||
+            _smoking == null)) {
+      _message('Complete the values and lifestyle section to continue.');
+      return;
+    }
+    if (_step < 5) setState(() => _step++);
   }
+
+  void _message(String text) =>
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
 
   void _back() {
     if (_step == 0) {
@@ -76,6 +112,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           city: _cityController.text.trim(),
           bio: _bioController.text.trim(),
           interests: _interests.toList(),
+          gender: _gender!,
+          datingIntention: _datingIntention!,
+          relationshipStyle: _relationshipStyle!,
+          datingPreferences: _datingPreferences.toList(),
         ),
       ),
     );
@@ -83,11 +123,21 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final titles = ['About you', 'Your interests', 'Add your photos'];
+    final titles = [
+      'Let’s start with you',
+      'What lights you up?',
+      'Express who you are',
+      'What are you looking for?',
+      'Values and lifestyle',
+      'Bring your profile to life',
+    ];
     final subtitles = [
-      'Tell people the basics. You can edit these details later.',
-      'Choose at least three things you genuinely enjoy.',
-      'For now, these are frontend placeholders for your future photos.',
+      'A few essentials help us make every introduction feel more relevant.',
+      'Choose at least three interests. Shared energy starts great conversations.',
+      'Choose what feels right. You control what appears on your profile.',
+      'Clear intentions create kinder, more meaningful connections.',
+      'Share only what feels comfortable. Every answer has a privacy control.',
+      'Add photos that feel natural, current, and unmistakably you.',
     ];
 
     return Scaffold(
@@ -106,12 +156,12 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
               child: Row(
-                children: List.generate(3, (index) {
+                children: List.generate(6, (index) {
                   return Expanded(
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       height: 5,
-                      margin: EdgeInsets.only(right: index == 2 ? 0 : 8),
+                      margin: EdgeInsets.only(right: index == 5 ? 0 : 7),
                       decoration: BoxDecoration(
                         color: index <= _step
                             ? BondCircleColors.primary
@@ -141,7 +191,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     const SizedBox(height: 28),
                     if (_step == 0) _detailsStep(),
                     if (_step == 1) _interestsStep(),
-                    if (_step == 2) _photosStep(),
+                    if (_step == 2) _identityStep(),
+                    if (_step == 3) _intentionsStep(),
+                    if (_step == 4) _valuesStep(),
+                    if (_step == 5) _photosStep(),
                   ],
                 ),
               ),
@@ -150,8 +203,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
               child: FilledButton(
                 key: const Key('profileContinueButton'),
-                onPressed: _step == 2 ? _finish : _next,
-                child: Text(_step == 2 ? 'Preview profile' : 'Continue'),
+                onPressed: _step == 5 ? _finish : _next,
+                child: Text(_step == 5 ? 'Preview profile' : 'Continue'),
               ),
             ),
           ],
@@ -338,6 +391,273 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     }
   }
 
+  Widget _identityStep() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionLabel(
+          icon: Icons.person_outline_rounded,
+          title: 'Gender',
+          subtitle: 'Choose what best describes you.',
+        ),
+        _singleChoice(
+          keyPrefix: 'gender',
+          options: const ['Man', 'Woman', 'Nonbinary', 'Self-described'],
+          value: _gender,
+          onChanged: (value) => setState(() => _gender = value),
+        ),
+        const SizedBox(height: 26),
+        _SectionLabel(
+          icon: Icons.favorite_border_rounded,
+          title: 'Sexual orientation',
+          subtitle: 'This helps us suggest more relevant people.',
+        ),
+        _singleChoice(
+          keyPrefix: 'sexuality',
+          options: const [
+            'Straight',
+            'Gay',
+            'Lesbian',
+            'Bisexual',
+            'Queer',
+            'Prefer not to say',
+          ],
+          value: _sexuality,
+          onChanged: (value) => setState(() => _sexuality = value),
+        ),
+        const SizedBox(height: 26),
+        _SectionLabel(
+          icon: Icons.people_alt_outlined,
+          title: 'Open to connecting with',
+          subtitle: 'Select all that apply.',
+        ),
+        _multiChoice(
+          keyPrefix: 'datingPreference',
+          options: const ['Men', 'Women', 'Nonbinary people'],
+          selected: _datingPreferences,
+        ),
+        const SizedBox(height: 18),
+        _PrivacyToggle(
+          value: _showIdentity,
+          onChanged: (value) => setState(() => _showIdentity = value),
+          label: _showIdentity
+              ? 'Identity details visible'
+              : 'Identity details private',
+        ),
+      ],
+    );
+  }
+
+  Widget _intentionsStep() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionLabel(
+          icon: Icons.explore_outlined,
+          title: 'Connection intention',
+          subtitle: 'What kind of connection are you open to?',
+        ),
+        _singleChoice(
+          keyPrefix: 'intention',
+          options: const [
+            'Life partner',
+            'Long-term relationship',
+            'Short-term, open to long',
+            'Figuring out my goals',
+          ],
+          value: _datingIntention,
+          onChanged: (value) => setState(() => _datingIntention = value),
+        ),
+        const SizedBox(height: 26),
+        _SectionLabel(
+          icon: Icons.join_inner_rounded,
+          title: 'Relationship style',
+          subtitle: 'Choose the option that fits you today.',
+        ),
+        _singleChoice(
+          keyPrefix: 'relationshipStyle',
+          options: const ['Monogamy', 'Non-monogamy', 'Still figuring it out'],
+          value: _relationshipStyle,
+          onChanged: (value) => setState(() => _relationshipStyle = value),
+        ),
+        const SizedBox(height: 26),
+        _SectionLabel(
+          icon: Icons.family_restroom_rounded,
+          title: 'Thoughts about children',
+          subtitle: 'You can always change this later.',
+        ),
+        _singleChoice(
+          keyPrefix: 'children',
+          options: const [
+            'Want children',
+            'Open to children',
+            'Don’t want children',
+            'Not sure yet',
+            'Prefer not to say',
+          ],
+          value: _childrenPlan,
+          onChanged: (value) => setState(() => _childrenPlan = value),
+        ),
+      ],
+    );
+  }
+
+  Widget _valuesStep() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionLabel(
+          icon: Icons.diversity_3_outlined,
+          title: 'Beliefs and values',
+          subtitle: 'Optional-feeling choices, with privacy built in.',
+        ),
+        _compactDropdown(
+          key: const Key('religionField'),
+          label: 'Religious or spiritual outlook',
+          value: _religion,
+          options: const [
+            'Spiritual',
+            'Hindu',
+            'Muslim',
+            'Christian',
+            'Buddhist',
+            'Agnostic',
+            'Atheist',
+            'Other',
+            'Prefer not to say',
+          ],
+          onChanged: (value) => setState(() => _religion = value),
+        ),
+        const SizedBox(height: 12),
+        _compactDropdown(
+          key: const Key('politicsField'),
+          label: 'Political outlook',
+          value: _politics,
+          options: const [
+            'Liberal',
+            'Moderate',
+            'Conservative',
+            'Not political',
+            'Other',
+            'Prefer not to say',
+          ],
+          onChanged: (value) => setState(() => _politics = value),
+        ),
+        _PrivacyToggle(
+          value: _showValues,
+          onChanged: (value) => setState(() => _showValues = value),
+          label: _showValues
+              ? 'Values visible on profile'
+              : 'Values kept private',
+        ),
+        const SizedBox(height: 24),
+        _SectionLabel(
+          icon: Icons.self_improvement_rounded,
+          title: 'Lifestyle',
+          subtitle: 'Honest answers lead to better compatibility.',
+        ),
+        _compactDropdown(
+          key: const Key('drinkingField'),
+          label: 'Drinking',
+          value: _drinking,
+          options: const [
+            'Never',
+            'Sometimes',
+            'Socially',
+            'Regularly',
+            'Prefer not to say',
+          ],
+          onChanged: (value) => setState(() => _drinking = value),
+        ),
+        const SizedBox(height: 12),
+        _compactDropdown(
+          key: const Key('smokingField'),
+          label: 'Smoking',
+          value: _smoking,
+          options: const [
+            'Never',
+            'Sometimes',
+            'Socially',
+            'Regularly',
+            'Prefer not to say',
+          ],
+          onChanged: (value) => setState(() => _smoking = value),
+        ),
+        _PrivacyToggle(
+          value: _showLifestyle,
+          onChanged: (value) => setState(() => _showLifestyle = value),
+          label: _showLifestyle
+              ? 'Lifestyle visible on profile'
+              : 'Lifestyle kept private',
+        ),
+      ],
+    );
+  }
+
+  Widget _singleChoice({
+    required String keyPrefix,
+    required List<String> options,
+    required String? value,
+    required ValueChanged<String> onChanged,
+  }) {
+    return Column(
+      children: options.map((option) {
+        final selected = value == option;
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: _ChoiceCard(
+            key: Key('$keyPrefix$option'),
+            label: option,
+            selected: selected,
+            onTap: () => onChanged(option),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _multiChoice({
+    required String keyPrefix,
+    required List<String> options,
+    required Set<String> selected,
+  }) {
+    return Column(
+      children: options.map((option) {
+        final isSelected = selected.contains(option);
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: _ChoiceCard(
+            key: Key('$keyPrefix$option'),
+            label: option,
+            selected: isSelected,
+            multi: true,
+            onTap: () => setState(
+              () => isSelected ? selected.remove(option) : selected.add(option),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _compactDropdown({
+    required Key key,
+    required String label,
+    required String? value,
+    required List<String> options,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      key: key,
+      initialValue: value,
+      decoration: InputDecoration(labelText: label),
+      items: options
+          .map((option) => DropdownMenuItem(value: option, child: Text(option)))
+          .toList(),
+      onChanged: onChanged,
+    );
+  }
+
   Widget _photosStep() {
     return GridView.builder(
       shrinkWrap: true,
@@ -382,6 +702,157 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   }
 }
 
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: 14),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFFFFE3EB), BondCircleColors.lavender],
+            ),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Icon(icon, color: BondCircleColors.purple),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                subtitle,
+                style: const TextStyle(color: BondCircleColors.muted),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _ChoiceCard extends StatelessWidget {
+  const _ChoiceCard({
+    super.key,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.multi = false,
+  });
+
+  final String label;
+  final bool selected;
+  final bool multi;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: selected ? const Color(0xFFFFEDF2) : Colors.white,
+    borderRadius: BorderRadius.circular(20),
+    child: InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 170),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 17),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected
+                ? BondCircleColors.primary
+                : BondCircleColors.border,
+            width: selected ? 1.6 : 1,
+          ),
+          boxShadow: selected
+              ? null
+              : const [
+                  BoxShadow(
+                    color: Color(0x0D231C24),
+                    blurRadius: 18,
+                    offset: Offset(0, 7),
+                  ),
+                ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+            ),
+            Icon(
+              selected
+                  ? (multi
+                        ? Icons.check_box_rounded
+                        : Icons.radio_button_checked_rounded)
+                  : (multi
+                        ? Icons.check_box_outline_blank_rounded
+                        : Icons.radio_button_off_rounded),
+              color: selected
+                  ? BondCircleColors.primary
+                  : BondCircleColors.muted,
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+class _PrivacyToggle extends StatelessWidget {
+  const _PrivacyToggle({
+    required this.value,
+    required this.onChanged,
+    required this.label,
+  });
+  final bool value;
+  final ValueChanged<bool> onChanged;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    margin: const EdgeInsets.only(top: 4),
+    decoration: BoxDecoration(
+      color: BondCircleColors.lavender.withValues(alpha: .55),
+      borderRadius: BorderRadius.circular(18),
+    ),
+    child: SwitchListTile(
+      value: value,
+      onChanged: onChanged,
+      secondary: Icon(
+        value ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+      ),
+      title: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+      subtitle: const Text('You can update this anytime.'),
+    ),
+  );
+}
+
 class ProfilePreviewScreen extends StatelessWidget {
   const ProfilePreviewScreen({
     super.key,
@@ -390,6 +861,10 @@ class ProfilePreviewScreen extends StatelessWidget {
     required this.city,
     required this.bio,
     required this.interests,
+    required this.gender,
+    required this.datingIntention,
+    required this.relationshipStyle,
+    required this.datingPreferences,
   });
 
   final String name;
@@ -397,6 +872,10 @@ class ProfilePreviewScreen extends StatelessWidget {
   final String city;
   final String bio;
   final List<String> interests;
+  final String gender;
+  final String datingIntention;
+  final String relationshipStyle;
+  final List<String> datingPreferences;
 
   @override
   Widget build(BuildContext context) {
@@ -437,6 +916,36 @@ class ProfilePreviewScreen extends StatelessWidget {
             runSpacing: 8,
             children: interests.map((item) => Chip(label: Text(item))).toList(),
           ),
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: BondCircleColors.border),
+            ),
+            child: Column(
+              children: [
+                _PreviewDetail(Icons.badge_outlined, 'Identity', gender),
+                _PreviewDetail(
+                  Icons.explore_outlined,
+                  'Looking for',
+                  datingIntention,
+                ),
+                _PreviewDetail(
+                  Icons.join_inner_rounded,
+                  'Relationship style',
+                  relationshipStyle,
+                ),
+                _PreviewDetail(
+                  Icons.people_alt_outlined,
+                  'Open to',
+                  datingPreferences.join(', '),
+                  last: true,
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 28),
           FilledButton(
             key: const Key('saveProfileButton'),
@@ -451,4 +960,38 @@ class ProfilePreviewScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class _PreviewDetail extends StatelessWidget {
+  const _PreviewDetail(this.icon, this.label, this.value, {this.last = false});
+  final IconData icon;
+  final String label;
+  final String value;
+  final bool last;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.only(bottom: last ? 0 : 16),
+    child: Row(
+      children: [
+        Icon(icon, color: BondCircleColors.purple),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  color: BondCircleColors.muted,
+                  fontSize: 12,
+                ),
+              ),
+              Text(value, style: const TextStyle(fontWeight: FontWeight.w800)),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
 }
