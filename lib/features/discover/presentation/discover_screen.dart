@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/bondcircle_theme.dart';
+import '../../vibe_check/presentation/vibe_check_screen.dart';
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({
@@ -97,9 +98,12 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             key: const Key('startVibeCheckButton'),
             onPressed: () {
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(this.context).showSnackBar(
-                const SnackBar(
-                  content: Text('Vibe Check is the next milestone.'),
+              Navigator.of(this.context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => VibeCheckScreen(
+                    matchName: profile.name,
+                    sharedCircle: profile.sharedCircle,
+                  ),
                 ),
               );
             },

@@ -2,6 +2,7 @@ import 'package:bondcircle/app.dart';
 import 'package:bondcircle/features/profile/presentation/profile_setup_screen.dart';
 import 'package:bondcircle/features/circles/presentation/interest_circles_screen.dart';
 import 'package:bondcircle/features/discover/presentation/discover_screen.dart';
+import 'package:bondcircle/features/vibe_check/presentation/vibe_check_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -70,5 +71,22 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('You matched with Aarohi!'), findsOneWidget);
     expect(find.byKey(const Key('startVibeCheckButton')), findsOneWidget);
+  });
+
+  testWidgets('vibe check advances after selecting an answer', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: VibeCheckScreen(
+          matchName: 'Aarohi',
+          sharedCircle: 'Coffee Explorers',
+        ),
+      ),
+    );
+
+    expect(find.text('1/3'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('vibeOption0')));
+    await tester.tap(find.byKey(const Key('vibeContinueButton')));
+    await tester.pumpAndSettle();
+    expect(find.text('2/3'), findsOneWidget);
   });
 }
