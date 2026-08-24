@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../theme/bondcircle_theme.dart';
 import '../../blind_bond/presentation/blind_bond_screen.dart';
 import '../../chat/presentation/chat_screen.dart';
+import '../../profile/presentation/profile_screen.dart';
 
 class ConnectionsScreen extends StatefulWidget {
   const ConnectionsScreen({
@@ -153,6 +154,15 @@ class _ConnectionsScreenState extends State<ConnectionsScreen> {
               ),
             ),
           );
+        } else if (index == 3) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute<void>(
+              builder: (_) => ProfileScreen(
+                displayName: widget.displayName,
+                joinedCircles: widget.joinedCircles,
+              ),
+            ),
+          );
         }
       },
       destinations: const [
@@ -167,6 +177,10 @@ class _ConnectionsScreenState extends State<ConnectionsScreen> {
         NavigationDestination(
           icon: Icon(Icons.chat_bubble_rounded),
           label: 'Chats',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.person_outline_rounded),
+          label: 'Profile',
         ),
       ],
     ),

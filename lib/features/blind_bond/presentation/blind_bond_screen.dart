@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../theme/bondcircle_theme.dart';
 import '../../connections/presentation/connections_screen.dart';
+import '../../profile/presentation/profile_screen.dart';
 
 class BlindBondScreen extends StatefulWidget {
   const BlindBondScreen({
@@ -165,6 +166,15 @@ class _BlindBondScreenState extends State<BlindBondScreen> {
               ),
             ),
           );
+        } else if (index == 3) {
+          Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => ProfileScreen(
+                displayName: widget.displayName,
+                joinedCircles: widget.joinedCircles,
+              ),
+            ),
+          );
         }
       },
       destinations: const [
@@ -179,6 +189,10 @@ class _BlindBondScreenState extends State<BlindBondScreen> {
         NavigationDestination(
           icon: Icon(Icons.chat_bubble_outline_rounded),
           label: 'Chats',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.person_outline_rounded),
+          label: 'Profile',
         ),
       ],
     ),

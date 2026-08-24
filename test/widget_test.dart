@@ -343,4 +343,19 @@ void main() {
     expect(find.text('Privacy and preferences'), findsOneWidget);
     expect(find.byKey(const Key('discoverableSwitch')), findsOneWidget);
   });
+
+  testWidgets('discover navigation opens profile tab', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: DiscoverScreen(
+          displayName: 'Sagar',
+          joinedCircles: ['Coffee Explorers'],
+        ),
+      ),
+    );
+    await tester.tap(find.text('Profile'));
+    await tester.pumpAndSettle();
+    expect(find.text('Your profile'), findsOneWidget);
+    expect(find.text('Profile strength'), findsOneWidget);
+  });
 }

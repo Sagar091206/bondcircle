@@ -125,19 +125,6 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         title: const Text('Discover'),
         actions: [
           IconButton(
-            key: const Key('openProfileButton'),
-            tooltip: 'Your profile',
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => ProfileScreen(
-                  displayName: widget.displayName,
-                  joinedCircles: widget.joinedCircles,
-                ),
-              ),
-            ),
-            icon: const Icon(Icons.account_circle_outlined),
-          ),
-          IconButton(
             key: const Key('discoverFilterButton'),
             tooltip: 'Discovery filters',
             onPressed: _openFilters,
@@ -233,6 +220,15 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 ),
               ),
             );
+          } else if (index == 3) {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => ProfileScreen(
+                  displayName: widget.displayName,
+                  joinedCircles: widget.joinedCircles,
+                ),
+              ),
+            );
           }
         },
         destinations: const [
@@ -250,6 +246,11 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             icon: Icon(Icons.chat_bubble_outline_rounded),
             selectedIcon: Icon(Icons.chat_bubble_rounded),
             label: 'Chats',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline_rounded),
+            selectedIcon: Icon(Icons.person_rounded),
+            label: 'Profile',
           ),
         ],
       ),

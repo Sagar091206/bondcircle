@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../theme/bondcircle_theme.dart';
 import 'profile_setup_screen.dart';
+import '../../blind_bond/presentation/blind_bond_screen.dart';
+import '../../connections/presentation/connections_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({
@@ -105,6 +107,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           icon: const Icon(Icons.visibility_outlined),
           label: const Text('Preview public profile'),
+        ),
+      ],
+    ),
+    bottomNavigationBar: NavigationBar(
+      selectedIndex: 3,
+      onDestinationSelected: (index) {
+        if (index == 0) {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        } else if (index == 1) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute<void>(
+              builder: (_) => BlindBondScreen(
+                displayName: widget.displayName,
+                joinedCircles: widget.joinedCircles,
+              ),
+            ),
+          );
+        } else if (index == 2) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute<void>(
+              builder: (_) => ConnectionsScreen(
+                displayName: widget.displayName,
+                joinedCircles: widget.joinedCircles,
+              ),
+            ),
+          );
+        }
+      },
+      destinations: const [
+        NavigationDestination(
+          icon: Icon(Icons.explore_outlined),
+          label: 'Discover',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.visibility_off_outlined),
+          label: 'Blind Bond',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.chat_bubble_outline_rounded),
+          label: 'Chats',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.person_rounded),
+          label: 'Profile',
         ),
       ],
     ),
