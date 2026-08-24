@@ -1,4 +1,5 @@
 import 'package:bondcircle/app.dart';
+import 'package:bondcircle/features/profile/presentation/profile_setup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -23,5 +24,18 @@ void main() {
       find.text('Password must have at least 6 characters'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('profile setup validates required details', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(home: ProfileSetupScreen(initialName: 'Sagar')),
+    );
+
+    await tester.tap(find.byKey(const Key('profileContinueButton')));
+    await tester.pump();
+
+    expect(find.text('Enter age 18–99'), findsOneWidget);
+    expect(find.text('Enter your city'), findsOneWidget);
+    expect(find.text('Write at least 20 characters'), findsOneWidget);
   });
 }

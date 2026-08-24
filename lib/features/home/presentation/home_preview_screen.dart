@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/bondcircle_theme.dart';
+import '../../profile/presentation/profile_setup_screen.dart';
 
 class HomePreviewScreen extends StatelessWidget {
   const HomePreviewScreen({super.key, required this.displayName});
@@ -33,15 +34,15 @@ class HomePreviewScreen extends StatelessWidget {
                 color: BondCircleColors.lavender,
                 borderRadius: BorderRadius.circular(24),
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.auto_awesome_rounded,
                     color: BondCircleColors.purple,
                   ),
-                  SizedBox(height: 18),
-                  Text(
+                  const SizedBox(height: 18),
+                  const Text(
                     'Next: build your profile',
                     style: TextStyle(
                       color: BondCircleColors.ink,
@@ -49,13 +50,24 @@ class HomePreviewScreen extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  SizedBox(height: 8),
-                  Text(
+                  const SizedBox(height: 8),
+                  const Text(
                     'Add your introduction, interests, city and profile photos.',
                     style: TextStyle(
                       color: BondCircleColors.muted,
                       height: 1.4,
                     ),
+                  ),
+                  const SizedBox(height: 20),
+                  FilledButton(
+                    key: const Key('startProfileButton'),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) =>
+                            ProfileSetupScreen(initialName: displayName),
+                      ),
+                    ),
+                    child: const Text('Start profile setup'),
                   ),
                 ],
               ),
