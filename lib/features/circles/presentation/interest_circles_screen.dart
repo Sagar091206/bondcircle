@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/bondcircle_theme.dart';
+import '../../discover/presentation/discover_screen.dart';
 
 class InterestCirclesScreen extends StatefulWidget {
   const InterestCirclesScreen({super.key, required this.displayName});
@@ -381,9 +382,13 @@ class _CirclesCompleteScreen extends StatelessWidget {
               ),
               const SizedBox(height: 34),
               FilledButton(
-                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Discover & Match is the next milestone.'),
+                key: const Key('goToDiscoverButton'),
+                onPressed: () => Navigator.of(context).pushReplacement(
+                  MaterialPageRoute<void>(
+                    builder: (_) => DiscoverScreen(
+                      displayName: displayName,
+                      joinedCircles: circles,
+                    ),
                   ),
                 ),
                 child: const Text('Go to Discover'),

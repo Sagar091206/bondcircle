@@ -1,6 +1,7 @@
 import 'package:bondcircle/app.dart';
 import 'package:bondcircle/features/profile/presentation/profile_setup_screen.dart';
 import 'package:bondcircle/features/circles/presentation/interest_circles_screen.dart';
+import 'package:bondcircle/features/discover/presentation/discover_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -53,5 +54,21 @@ void main() {
     await tester.pump();
     expect(find.text('Readers & Stories'), findsOneWidget);
     expect(find.text('Coffee Explorers'), findsNothing);
+  });
+
+  testWidgets('liking a profile shows a match dialog', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: DiscoverScreen(
+          displayName: 'Sagar',
+          joinedCircles: ['Coffee Explorers', 'Readers & Stories'],
+        ),
+      ),
+    );
+
+    await tester.tap(find.byKey(const Key('likeProfileButton')));
+    await tester.pumpAndSettle();
+    expect(find.text('You matched with Aarohi!'), findsOneWidget);
+    expect(find.byKey(const Key('startVibeCheckButton')), findsOneWidget);
   });
 }
