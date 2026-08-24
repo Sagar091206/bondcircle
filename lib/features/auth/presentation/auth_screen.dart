@@ -58,7 +58,9 @@ class _AuthScreenState extends State<AuthScreen> {
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                minHeight: constraints.maxHeight - 56,
+                minHeight: constraints.maxHeight > 56
+                    ? constraints.maxHeight - 56
+                    : 0,
               ),
               child: Form(
                 key: _formKey,
