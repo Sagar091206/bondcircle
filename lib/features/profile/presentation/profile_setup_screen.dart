@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/bondcircle_theme.dart';
+import '../../circles/presentation/interest_circles_screen.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
   const ProfileSetupScreen({super.key, required this.initialName});
@@ -346,12 +347,13 @@ class ProfilePreviewScreen extends StatelessWidget {
           ),
           const SizedBox(height: 28),
           FilledButton(
-            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Profile saved locally for this prototype.'),
+            key: const Key('saveProfileButton'),
+            onPressed: () => Navigator.of(context).pushReplacement(
+              MaterialPageRoute<void>(
+                builder: (_) => InterestCirclesScreen(displayName: name),
               ),
             ),
-            child: const Text('Save profile'),
+            child: const Text('Save and choose circles'),
           ),
         ],
       ),

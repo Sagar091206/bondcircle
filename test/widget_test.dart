@@ -1,5 +1,6 @@
 import 'package:bondcircle/app.dart';
 import 'package:bondcircle/features/profile/presentation/profile_setup_screen.dart';
+import 'package:bondcircle/features/circles/presentation/interest_circles_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -37,5 +38,20 @@ void main() {
     expect(find.text('Enter age 18–99'), findsOneWidget);
     expect(find.text('Enter your city'), findsOneWidget);
     expect(find.text('Write at least 20 characters'), findsOneWidget);
+  });
+
+  testWidgets('interest circles can be filtered and joined', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(home: InterestCirclesScreen(displayName: 'Sagar')),
+    );
+
+    await tester.tap(find.byKey(const Key('joinCoffee Explorers')));
+    await tester.pump();
+    expect(find.text('1 joined'), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('circleSearchField')), 'books');
+    await tester.pump();
+    expect(find.text('Readers & Stories'), findsOneWidget);
+    expect(find.text('Coffee Explorers'), findsNothing);
   });
 }
