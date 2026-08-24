@@ -3,6 +3,7 @@ import 'package:bondcircle/features/profile/presentation/profile_setup_screen.da
 import 'package:bondcircle/features/circles/presentation/interest_circles_screen.dart';
 import 'package:bondcircle/features/discover/presentation/discover_screen.dart';
 import 'package:bondcircle/features/vibe_check/presentation/vibe_check_screen.dart';
+import 'package:bondcircle/features/chat/presentation/chat_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -117,5 +118,21 @@ void main() {
     await tester.tap(find.byKey(const Key('vibeContinueButton')));
     await tester.pumpAndSettle();
     expect(find.text('2/3'), findsOneWidget);
+  });
+
+  testWidgets('chat sends a local message', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: ChatScreen(matchName: 'Aarohi', sharedCircle: 'Coffee Explorers'),
+      ),
+    );
+
+    await tester.enterText(
+      find.byKey(const Key('chatMessageField')),
+      'Would Saturday work?',
+    );
+    await tester.tap(find.byKey(const Key('sendChatMessageButton')));
+    await tester.pump();
+    expect(find.text('Would Saturday work?'), findsOneWidget);
   });
 }

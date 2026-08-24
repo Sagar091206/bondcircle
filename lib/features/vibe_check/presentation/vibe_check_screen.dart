@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/bondcircle_theme.dart';
+import '../../chat/presentation/chat_screen.dart';
 
 class VibeCheckScreen extends StatefulWidget {
   const VibeCheckScreen({
@@ -346,8 +347,13 @@ class VibeResultScreen extends StatelessWidget {
             const SizedBox(height: 30),
             FilledButton.icon(
               key: const Key('openChatButton'),
-              onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Chat is the next milestone.')),
+              onPressed: () => Navigator.of(context).pushReplacement(
+                MaterialPageRoute<void>(
+                  builder: (_) => ChatScreen(
+                    matchName: matchName,
+                    sharedCircle: sharedCircle,
+                  ),
+                ),
               ),
               icon: const Icon(Icons.chat_bubble_outline_rounded),
               label: Text('Chat with $matchName'),
