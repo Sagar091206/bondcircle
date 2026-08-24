@@ -42,6 +42,35 @@ void main() {
     expect(find.text('Write at least 20 characters'), findsOneWidget);
   });
 
+  testWidgets('profile setup accepts a custom interest', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(home: ProfileSetupScreen(initialName: 'Sagar')),
+    );
+
+    await tester.enterText(find.byKey(const Key('profileAgeField')), '22');
+    await tester.enterText(
+      find.byKey(const Key('profileCityField')),
+      'Kolkata',
+    );
+    await tester.enterText(
+      find.byKey(const Key('profileBioField')),
+      'I enjoy thoughtful conversations and creative weekend plans.',
+    );
+    await tester.tap(find.byKey(const Key('profileContinueButton')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('addCustomInterestButton')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('customInterestField')),
+      'Photography',
+    );
+    await tester.tap(find.byKey(const Key('confirmCustomInterestButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Photography'), findsOneWidget);
+  });
+
   testWidgets('interest circles can be filtered and joined', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(home: InterestCirclesScreen(displayName: 'Sagar')),

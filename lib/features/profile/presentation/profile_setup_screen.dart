@@ -30,6 +30,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final _cityController = TextEditingController();
   final _bioController = TextEditingController();
   final Set<String> _interests = {};
+  final List<String> _customInterests = [];
   int _step = 0;
 
   @override
@@ -229,21 +230,112 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     return Wrap(
       spacing: 10,
       runSpacing: 12,
-      children: _interestOptions.map((option) {
-        final selected = _interests.contains(option.$1);
-        return FilterChip(
-          key: Key('interest${option.$1}'),
-          selected: selected,
-          showCheckmark: false,
-          avatar: Icon(option.$2, size: 19),
-          label: Text(option.$1),
+      children: [
+        ..._interestOptions.map((option) {
+          final selected = _interests.contains(option.$1);
+          return FilterChip(
+            key: Key('interest${option.$1}'),
+            selected: selected,
+            showCheckmark: false,
+            avatar: Icon(option.$2, size: 19),
+            label: Text(option.$1),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            onSelected: (_) => setState(() {
+              selected
+                  ? _interests.remove(option.$1)
+                  : _interests.add(option.$1);
+            }),
+          );
+        }),
+        ..._customInterests.map((interest) {
+          final selected = _interests.contains(interest);
+          return FilterChip(
+            key: Key('interest$interest'),
+            selected: selected,
+            showCheckmark: false,
+            avatar: const Icon(Icons.auto_awesome_rounded, size: 19),
+            label: Text(interest),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            onSelected: (_) => setState(() {
+              selected ? _interests.remove(interest) : _interests.add(interest);
+            }),
+          );
+        }),
+        ActionChip(
+          key: const Key('addCustomInterestButton'),
+          avatar: const Icon(Icons.add_rounded, size: 20),
+          label: const Text('Add interest'),
+          side: const BorderSide(color: BondCircleColors.primary),
+          labelStyle: const TextStyle(
+            color: BondCircleColors.primary,
+            fontWeight: FontWeight.w700,
+          ),
+          backgroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          onSelected: (_) => setState(() {
-            selected ? _interests.remove(option.$1) : _interests.add(option.$1);
-          }),
-        );
-      }).toList(),
+          onPressed: _showAddInterestDialog,
+        ),
+      ],
     );
+  }
+
+  Future<void> _showAddInterestDialog() async {
+    final controller = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    final addedInterest = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Add your interest'),
+        content: Form(
+          key: formKey,
+          child: TextFormField(
+            key: const Key('customInterestField'),
+            controller: controller,
+            autofocus: true,
+            textCapitalization: TextCapitalization.words,
+            maxLength: 24,
+            decoration: const InputDecoration(
+              hintText: 'e.g. Photography',
+              prefixIcon: Icon(Icons.interests_outlined),
+            ),
+            validator: (value) {
+              final interest = (value ?? '').trim();
+              if (interest.length < 2) return 'Enter an interest';
+              final existing = [
+                ..._interestOptions.map((item) => item.$1),
+                ..._customInterests,
+              ];
+              if (existing.any(
+                (item) => item.toLowerCase() == interest.toLowerCase(),
+              )) {
+                return 'This interest is already listed';
+              }
+              return null;
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            key: const Key('confirmCustomInterestButton'),
+            onPressed: () {
+              if (formKey.currentState?.validate() ?? false) {
+                Navigator.of(dialogContext).pop(controller.text.trim());
+              }
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+    if (addedInterest != null && mounted) {
+      setState(() {
+        _customInterests.add(addedInterest);
+        _interests.add(addedInterest);
+      });
+    }
   }
 
   Widget _photosStep() {
