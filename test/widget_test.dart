@@ -4,6 +4,7 @@ import 'package:bondcircle/features/circles/presentation/interest_circles_screen
 import 'package:bondcircle/features/discover/presentation/discover_screen.dart';
 import 'package:bondcircle/features/vibe_check/presentation/vibe_check_screen.dart';
 import 'package:bondcircle/features/chat/presentation/chat_screen.dart';
+import 'package:bondcircle/features/meetup/presentation/meetup_planner_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -134,5 +135,25 @@ void main() {
     await tester.tap(find.byKey(const Key('sendChatMessageButton')));
     await tester.pump();
     expect(find.text('Would Saturday work?'), findsOneWidget);
+  });
+
+  testWidgets('meetup planner requires and accepts a vibe', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: MeetupPlannerScreen(
+          matchName: 'Aarohi',
+          sharedCircle: 'Coffee Explorers',
+        ),
+      ),
+    );
+
+    await tester.tap(find.byKey(const Key('meetupContinueButton')));
+    await tester.pump();
+    expect(find.text('Choose a meetup vibe to continue.'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('meetupVibe0')));
+    await tester.tap(find.byKey(const Key('meetupContinueButton')));
+    await tester.pumpAndSettle();
+    expect(find.text('Choose date and time'), findsOneWidget);
   });
 }

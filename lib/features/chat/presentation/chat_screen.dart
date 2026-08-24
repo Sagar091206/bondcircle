@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/bondcircle_theme.dart';
+import '../../meetup/presentation/meetup_planner_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({
@@ -163,9 +164,12 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   TextButton.icon(
                     key: const Key('planMeetupButton'),
-                    onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Meetup Planner is the next milestone.'),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => MeetupPlannerScreen(
+                          matchName: widget.matchName,
+                          sharedCircle: widget.sharedCircle,
+                        ),
                       ),
                     ),
                     icon: const Icon(Icons.calendar_month_outlined, size: 18),
