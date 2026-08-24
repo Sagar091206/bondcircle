@@ -4,6 +4,7 @@ import '../../../theme/bondcircle_theme.dart';
 import '../../vibe_check/presentation/vibe_check_screen.dart';
 import '../../blind_bond/presentation/blind_bond_screen.dart';
 import '../../connections/presentation/connections_screen.dart';
+import '../../profile/presentation/profile_screen.dart';
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({
@@ -123,6 +124,19 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       appBar: AppBar(
         title: const Text('Discover'),
         actions: [
+          IconButton(
+            key: const Key('openProfileButton'),
+            tooltip: 'Your profile',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => ProfileScreen(
+                  displayName: widget.displayName,
+                  joinedCircles: widget.joinedCircles,
+                ),
+              ),
+            ),
+            icon: const Icon(Icons.account_circle_outlined),
+          ),
           IconButton(
             key: const Key('discoverFilterButton'),
             tooltip: 'Discovery filters',

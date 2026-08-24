@@ -9,6 +9,7 @@ import 'package:bondcircle/features/venues/presentation/venue_suggestions_screen
 import 'package:bondcircle/features/safety/presentation/safety_check_in_screen.dart';
 import 'package:bondcircle/features/blind_bond/presentation/blind_bond_screen.dart';
 import 'package:bondcircle/features/connections/presentation/connections_screen.dart';
+import 'package:bondcircle/features/profile/presentation/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -325,5 +326,21 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Online'), findsOneWidget);
     expect(find.text('Shared circle: Readers & Stories'), findsOneWidget);
+  });
+
+  testWidgets('profile opens privacy settings', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: ProfileScreen(
+          displayName: 'Sagar',
+          joinedCircles: ['Coffee Explorers'],
+        ),
+      ),
+    );
+    expect(find.text('Profile strength'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('profileSettingsButton')));
+    await tester.pumpAndSettle();
+    expect(find.text('Privacy and preferences'), findsOneWidget);
+    expect(find.byKey(const Key('discoverableSwitch')), findsOneWidget);
   });
 }
