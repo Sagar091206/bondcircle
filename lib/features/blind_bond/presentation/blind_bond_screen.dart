@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/bondcircle_theme.dart';
+import '../../connections/presentation/connections_screen.dart';
 
 class BlindBondScreen extends StatefulWidget {
   const BlindBondScreen({
@@ -153,7 +154,18 @@ class _BlindBondScreenState extends State<BlindBondScreen> {
     bottomNavigationBar: NavigationBar(
       selectedIndex: 1,
       onDestinationSelected: (index) {
-        if (index == 0) Navigator.of(context).pop();
+        if (index == 0) {
+          Navigator.of(context).pop();
+        } else if (index == 2) {
+          Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => ConnectionsScreen(
+                displayName: widget.displayName,
+                joinedCircles: widget.joinedCircles,
+              ),
+            ),
+          );
+        }
       },
       destinations: const [
         NavigationDestination(
@@ -163,6 +175,10 @@ class _BlindBondScreenState extends State<BlindBondScreen> {
         NavigationDestination(
           icon: Icon(Icons.visibility_off),
           label: 'Blind Bond',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.chat_bubble_outline_rounded),
+          label: 'Chats',
         ),
       ],
     ),

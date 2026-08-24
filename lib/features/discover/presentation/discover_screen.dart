@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../theme/bondcircle_theme.dart';
 import '../../vibe_check/presentation/vibe_check_screen.dart';
 import '../../blind_bond/presentation/blind_bond_screen.dart';
+import '../../connections/presentation/connections_screen.dart';
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({
@@ -209,6 +210,15 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 ),
               ),
             );
+          } else if (index == 2) {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => ConnectionsScreen(
+                  displayName: widget.displayName,
+                  joinedCircles: widget.joinedCircles,
+                ),
+              ),
+            );
           }
         },
         destinations: const [
@@ -221,6 +231,11 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             icon: Icon(Icons.visibility_off_outlined),
             selectedIcon: Icon(Icons.visibility_off),
             label: 'Blind Bond',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.chat_bubble_outline_rounded),
+            selectedIcon: Icon(Icons.chat_bubble_rounded),
+            label: 'Chats',
           ),
         ],
       ),

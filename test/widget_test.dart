@@ -8,6 +8,7 @@ import 'package:bondcircle/features/meetup/presentation/meetup_planner_screen.da
 import 'package:bondcircle/features/venues/presentation/venue_suggestions_screen.dart';
 import 'package:bondcircle/features/safety/presentation/safety_check_in_screen.dart';
 import 'package:bondcircle/features/blind_bond/presentation/blind_bond_screen.dart';
+import 'package:bondcircle/features/connections/presentation/connections_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -302,5 +303,27 @@ void main() {
     await tester.tap(find.byKey(const Key('completeMutualRevealButton')));
     await tester.pumpAndSettle();
     expect(find.text('Purple Comet is Aarohi'), findsOneWidget);
+  });
+
+  testWidgets('connections can be searched and opened', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: ConnectionsScreen(
+          displayName: 'Sagar',
+          joinedCircles: ['Coffee Explorers'],
+        ),
+      ),
+    );
+    await tester.enterText(
+      find.byKey(const Key('connectionSearchField')),
+      'Meera',
+    );
+    await tester.pump();
+    expect(find.byKey(const Key('openChatMeera')), findsOneWidget);
+    expect(find.text('Aarohi'), findsNothing);
+    await tester.tap(find.byKey(const Key('openChatMeera')));
+    await tester.pumpAndSettle();
+    expect(find.text('Online'), findsOneWidget);
+    expect(find.text('Shared circle: Readers & Stories'), findsOneWidget);
   });
 }
