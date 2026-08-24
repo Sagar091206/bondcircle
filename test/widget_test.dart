@@ -250,4 +250,22 @@ void main() {
     expect(find.text('You found “Purple Comet”'), findsOneWidget);
     expect(find.byKey(const Key('startBlindChatButton')), findsOneWidget);
   });
+
+  testWidgets('blind reveal requires mutual consent', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: BlindChatScreen()));
+    await tester.tap(find.byKey(const Key('requestRevealButton')));
+    await tester.pump();
+    expect(find.text('Waiting for mutual consent'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('previewMutualConsentButton')));
+    await tester.pumpAndSettle();
+    final revealButton = tester.widget<FilledButton>(
+      find.byKey(const Key('completeMutualRevealButton')),
+    );
+    expect(revealButton.onPressed, isNull);
+    await tester.tap(find.byKey(const Key('simulatePartnerConsentButton')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('completeMutualRevealButton')));
+    await tester.pumpAndSettle();
+    expect(find.text('Purple Comet is Aarohi'), findsOneWidget);
+  });
 }

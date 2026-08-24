@@ -175,64 +175,60 @@ class BlindMatchScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Anonymous match')),
-    body: Padding(
+    body: ListView(
       padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          const Spacer(),
-          Container(
-            width: 120,
-            height: 120,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [Color(0xFF6D4DD6), Color(0xFFD94F76)],
-              ),
-            ),
-            child: const Icon(
-              Icons.question_mark_rounded,
-              color: Colors.white,
-              size: 60,
+      children: [
+        const SizedBox(height: 28),
+        Container(
+          width: 120,
+          height: 120,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              colors: [Color(0xFF6D4DD6), Color(0xFFD94F76)],
             ),
           ),
-          const SizedBox(height: 24),
-          Text(
-            'You found “Purple Comet”',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.displaySmall,
+          child: const Icon(
+            Icons.question_mark_rounded,
+            color: Colors.white,
+            size: 60,
           ),
-          const SizedBox(height: 10),
-          const Text(
-            'Their identity is hidden. You matched through conversation energy, not profile details.',
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 20),
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 8,
-            runSpacing: 8,
-            children: topics.map((topic) => Chip(label: Text(topic))).toList(),
-          ),
-          const Spacer(),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              key: const Key('startBlindChatButton'),
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const BlindChatScreen(),
-                ),
-              ),
-              child: const Text('Start anonymous chat'),
+        ),
+        const SizedBox(height: 24),
+        Text(
+          'You found “Purple Comet”',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.displaySmall,
+        ),
+        const SizedBox(height: 10),
+        const Text(
+          'Their identity is hidden. You matched through conversation energy, not profile details.',
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 20),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 8,
+          runSpacing: 8,
+          children: topics.map((topic) => Chip(label: Text(topic))).toList(),
+        ),
+        const SizedBox(height: 32),
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton(
+            key: const Key('startBlindChatButton'),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const BlindChatScreen()),
             ),
+            child: const Text('Start anonymous chat'),
           ),
-          const SizedBox(height: 10),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Maybe later'),
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 10),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Maybe later'),
+        ),
+      ],
     ),
   );
 }
@@ -249,6 +245,12 @@ class _BlindChatScreenState extends State<BlindChatScreen> {
     'What is one small thing that made you smile this week?',
   ];
   bool _requestedReveal = false;
+  int _promptIndex = 0;
+  static const _prompts = [
+    'What would your perfect slow Sunday look like?',
+    'Which song instantly improves your mood?',
+    'What quality do you value most in a person?',
+  ];
   @override
   void dispose() {
     _controller.dispose();
@@ -293,6 +295,31 @@ class _BlindChatScreenState extends State<BlindChatScreen> {
           child: const Text(
             'Anonymous chat • Avoid sharing personal contact or location details.',
             textAlign: TextAlign.center,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(18, 12, 18, 0),
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF4DE),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.lightbulb_outline_rounded),
+                const SizedBox(width: 10),
+                Expanded(child: Text(_prompts[_promptIndex])),
+                IconButton(
+                  key: const Key('nextBlindPromptButton'),
+                  tooltip: 'Next prompt',
+                  onPressed: () => setState(
+                    () => _promptIndex = (_promptIndex + 1) % _prompts.length,
+                  ),
+                  icon: const Icon(Icons.refresh_rounded),
+                ),
+              ],
+            ),
           ),
         ),
         Expanded(
@@ -345,12 +372,25 @@ class _BlindChatScreenState extends State<BlindChatScreen> {
           ),
         ),
         if (_requestedReveal)
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 22, vertical: 6),
-            child: Text(
-              'Your identity stays hidden until Purple Comet also agrees.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: BondCircleColors.muted),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 6),
+            child: Column(
+              children: [
+                const Text(
+                  'Your identity stays hidden until Purple Comet also agrees.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: BondCircleColors.muted),
+                ),
+                TextButton(
+                  key: const Key('previewMutualConsentButton'),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const MutualRevealScreen(),
+                    ),
+                  ),
+                  child: const Text('Preview mutual-consent result'),
+                ),
+              ],
             ),
           ),
         SafeArea(
@@ -379,6 +419,157 @@ class _BlindChatScreenState extends State<BlindChatScreen> {
           ),
         ),
       ],
+    ),
+  );
+}
+
+class MutualRevealScreen extends StatefulWidget {
+  const MutualRevealScreen({super.key});
+  @override
+  State<MutualRevealScreen> createState() => _MutualRevealScreenState();
+}
+
+class _MutualRevealScreenState extends State<MutualRevealScreen> {
+  final bool _me = true;
+  bool _them = false;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: const Text('Mutual reveal')),
+    body: ListView(
+      padding: const EdgeInsets.all(24),
+      children: [
+        const SizedBox(height: 20),
+        const Icon(
+          Icons.lock_outline_rounded,
+          size: 64,
+          color: BondCircleColors.purple,
+        ),
+        const SizedBox(height: 18),
+        Text(
+          'Both people must say yes',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.displaySmall,
+        ),
+        const SizedBox(height: 10),
+        const Text(
+          'No identity information is shown while either person has not consented.',
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 28),
+        _ConsentTile(name: 'You', accepted: _me),
+        _ConsentTile(name: 'Purple Comet', accepted: _them),
+        const SizedBox(height: 28),
+        if (!_them)
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.tonal(
+              key: const Key('simulatePartnerConsentButton'),
+              onPressed: () => setState(() => _them = true),
+              child: const Text('Demo: Purple Comet agrees'),
+            ),
+          ),
+        const SizedBox(height: 10),
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton(
+            key: const Key('completeMutualRevealButton'),
+            onPressed: _me && _them
+                ? () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const RevealedBondScreen(),
+                    ),
+                  )
+                : null,
+            child: const Text('Reveal identities'),
+          ),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Keep chatting anonymously'),
+        ),
+      ],
+    ),
+  );
+}
+
+class _ConsentTile extends StatelessWidget {
+  const _ConsentTile({required this.name, required this.accepted});
+  final String name;
+  final bool accepted;
+  @override
+  Widget build(BuildContext context) => Card(
+    child: ListTile(
+      leading: CircleAvatar(
+        child: Icon(
+          accepted ? Icons.check_rounded : Icons.hourglass_top_rounded,
+        ),
+      ),
+      title: Text(name, style: const TextStyle(fontWeight: FontWeight.w800)),
+      subtitle: Text(accepted ? 'Agreed to reveal' : 'Waiting for consent'),
+      trailing: Icon(
+        accepted ? Icons.verified_rounded : Icons.lock_outline,
+        color: accepted ? Colors.green : BondCircleColors.muted,
+      ),
+    ),
+  );
+}
+
+class RevealedBondScreen extends StatelessWidget {
+  const RevealedBondScreen({super.key});
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: const Text('Bond revealed')),
+    body: Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 116,
+            height: 116,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [Color(0xFFE9A8B9), Color(0xFF9E6DD7)],
+              ),
+            ),
+            child: const Icon(
+              Icons.person_rounded,
+              color: Colors.white,
+              size: 62,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'Purple Comet is Aarohi',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.displaySmall,
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'You both chose to reveal. Only now are the name and profile preview visible.',
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          const Wrap(
+            spacing: 8,
+            children: [
+              Chip(label: Text('Coffee')),
+              Chip(label: Text('Music')),
+              Chip(label: Text('Books')),
+            ],
+          ),
+          const SizedBox(height: 28),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Continue conversation'),
+            ),
+          ),
+        ],
+      ),
     ),
   );
 }
