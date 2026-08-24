@@ -7,6 +7,7 @@ import 'package:bondcircle/features/chat/presentation/chat_screen.dart';
 import 'package:bondcircle/features/meetup/presentation/meetup_planner_screen.dart';
 import 'package:bondcircle/features/venues/presentation/venue_suggestions_screen.dart';
 import 'package:bondcircle/features/safety/presentation/safety_check_in_screen.dart';
+import 'package:bondcircle/features/blind_bond/presentation/blind_bond_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -219,5 +220,34 @@ void main() {
       find.textContaining('Riya will be your trusted contact'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('blind bond requires topics and opens anonymous match', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: BlindBondScreen(
+          displayName: 'Sagar',
+          joinedCircles: ['Coffee Explorers'],
+        ),
+      ),
+    );
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('findBlindBondButton')),
+      300,
+    );
+    await tester.tap(find.byKey(const Key('findBlindBondButton')));
+    await tester.pump();
+    expect(
+      find.text('Choose at least two conversation vibes.'),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const Key('blindTopicMusic')));
+    await tester.tap(find.byKey(const Key('blindTopicBooks')));
+    await tester.tap(find.byKey(const Key('findBlindBondButton')));
+    await tester.pumpAndSettle();
+    expect(find.text('You found “Purple Comet”'), findsOneWidget);
+    expect(find.byKey(const Key('startBlindChatButton')), findsOneWidget);
   });
 }

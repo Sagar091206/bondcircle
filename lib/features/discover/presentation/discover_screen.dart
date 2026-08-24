@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../theme/bondcircle_theme.dart';
 import '../../vibe_check/presentation/vibe_check_screen.dart';
+import '../../blind_bond/presentation/blind_bond_screen.dart';
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({
@@ -195,6 +196,33 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: 0,
+        onDestinationSelected: (index) {
+          if (index == 1) {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => BlindBondScreen(
+                  displayName: widget.displayName,
+                  joinedCircles: widget.joinedCircles,
+                ),
+              ),
+            );
+          }
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.explore_outlined),
+            selectedIcon: Icon(Icons.explore),
+            label: 'Discover',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.visibility_off_outlined),
+            selectedIcon: Icon(Icons.visibility_off),
+            label: 'Blind Bond',
+          ),
+        ],
       ),
     );
   }
