@@ -5,6 +5,7 @@ import 'package:bondcircle/features/discover/presentation/discover_screen.dart';
 import 'package:bondcircle/features/vibe_check/presentation/vibe_check_screen.dart';
 import 'package:bondcircle/features/chat/presentation/chat_screen.dart';
 import 'package:bondcircle/features/meetup/presentation/meetup_planner_screen.dart';
+import 'package:bondcircle/features/venues/presentation/venue_suggestions_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -155,5 +156,31 @@ void main() {
     await tester.tap(find.byKey(const Key('meetupContinueButton')));
     await tester.pumpAndSettle();
     expect(find.text('Choose date and time'), findsOneWidget);
+  });
+
+  testWidgets('venue suggestions can be filtered and selected', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: VenueSuggestionsScreen(
+          matchName: 'Aarohi',
+          sharedCircle: 'Coffee Explorers',
+          vibe: 'Coffee',
+          date: DateTime(2026, 8, 28),
+          time: '4:00 PM',
+          title: 'Coffee and stories',
+          note: '',
+        ),
+      ),
+    );
+
+    expect(find.text('Paper & Bean'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('venueFilterActivity')));
+    await tester.pump();
+    expect(find.text('Pixel Playground'), findsOneWidget);
+    expect(find.text('Paper & Bean'), findsNothing);
+    await tester.tap(find.byKey(const Key('selectVenuePixel Playground')));
+    await tester.pumpAndSettle();
+    expect(find.text('Venue selected!'), findsOneWidget);
+    expect(find.text('Pixel Playground'), findsOneWidget);
   });
 }

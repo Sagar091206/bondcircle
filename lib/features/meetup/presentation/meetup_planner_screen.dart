@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/bondcircle_theme.dart';
+import '../../venues/presentation/venue_suggestions_screen.dart';
 
 class MeetupPlannerScreen extends StatefulWidget {
   const MeetupPlannerScreen({
@@ -481,9 +482,17 @@ class MeetupPlanPreviewScreen extends StatelessWidget {
           const SizedBox(height: 28),
           FilledButton.icon(
             key: const Key('chooseVenueButton'),
-            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Venue Suggestions is the next milestone.'),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => VenueSuggestionsScreen(
+                  matchName: matchName,
+                  sharedCircle: sharedCircle,
+                  vibe: vibe,
+                  date: date,
+                  time: time,
+                  title: title,
+                  note: note,
+                ),
               ),
             ),
             icon: const Icon(Icons.map_outlined),
