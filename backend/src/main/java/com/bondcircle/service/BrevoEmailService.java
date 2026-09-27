@@ -7,9 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +32,7 @@ public class BrevoEmailService implements EmailService {
             @Value("${brevo.sender-email:sagarkewat12121@gmail.com}") String senderEmail,
             @Value("${brevo.sender-name:BondCircle}") String senderName,
             @Value("${brevo.api-url:https://api.brevo.com/v3/smtp/email}") String apiUrl) {
-        this(apiKey, senderEmail, senderName, apiUrl, RestClient.create());
+        this(apiKey, senderEmail, senderName, apiUrl, createRestClient());
     }
 
     public BrevoEmailService(
@@ -43,7 +45,14 @@ public class BrevoEmailService implements EmailService {
         this.senderEmail = senderEmail != null && !senderEmail.isBlank() ? senderEmail.trim() : "sagarkewat12121@gmail.com";
         this.senderName = senderName != null && !senderName.isBlank() ? senderName.trim() : "BondCircle";
         this.apiUrl = apiUrl != null && !apiUrl.isBlank() ? apiUrl.trim() : "https://api.brevo.com/v3/smtp/email";
-        this.restClient = restClient != null ? restClient : RestClient.create();
+        this.restClient = restClient != null ? restClient : createRestClient();
+    }
+
+    private static RestClient createRestClient() {
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(Duration.ofSeconds(10));
+        requestFactory.setReadTimeout(Duration.ofSeconds(15));
+        return RestClient.builder().requestFactory(requestFactory).build();
     }
 
     @Override
