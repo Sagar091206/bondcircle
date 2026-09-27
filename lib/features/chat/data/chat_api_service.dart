@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -319,7 +318,7 @@ class ChatApiService {
         'suggestionId': suggestionId,
         'conversationId': conversationId,
         'action': action,
-        if (finalMessage != null) 'finalMessage': finalMessage,
+        'finalMessage': ?finalMessage,
       });
 
       final response = await _client
@@ -346,8 +345,8 @@ class ChatApiService {
     try {
       final queryParams = <String, String>{
         'count': count.toString(),
-        if (userInterests != null) 'userInterests': userInterests,
-        if (partnerInterests != null) 'partnerInterests': partnerInterests,
+        'userInterests': ?userInterests,
+        'partnerInterests': ?partnerInterests,
       };
 
       final uri = ApiConfig.icebreakerSuggestionsUri.replace(queryParameters: queryParams);
@@ -394,7 +393,7 @@ class ChatApiService {
       final body = jsonEncode({
         'reportedUserId': reportedUserId,
         'reason': reason,
-        if (details != null) 'details': details,
+        'details': ?details,
       });
 
       final response = await _client

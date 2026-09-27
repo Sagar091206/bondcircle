@@ -292,7 +292,7 @@ class _ChatScreenState extends State<ChatScreen> {
     await showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
-      builder: (context) => SafeArea(
+      builder: (sheetContext) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
           child: Column(
@@ -301,7 +301,7 @@ class _ChatScreenState extends State<ChatScreen> {
             children: [
               Text(
                 'Safety options',
-                style: Theme.of(context).textTheme.headlineSmall,
+                style: Theme.of(sheetContext).textTheme.headlineSmall,
               ),
               const SizedBox(height: 10),
               ListTile(
@@ -311,7 +311,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   'They will no longer be able to contact you.',
                 ),
                 onTap: () async {
-                  Navigator.of(context).pop();
+                  Navigator.of(sheetContext).pop();
                   if (widget.partnerId != null) {
                     await _chatService.blockUser(blockedUserId: widget.partnerId!);
                   }
@@ -353,7 +353,7 @@ class _ChatScreenState extends State<ChatScreen> {
               const Text('Please select the reason for reporting this user:'),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: selectedReason,
+                initialValue: selectedReason,
                 items: const [
                   DropdownMenuItem(value: 'HARASSMENT', child: Text('Harassment or bullying')),
                   DropdownMenuItem(value: 'INAPPROPRIATE_CONTENT', child: Text('Inappropriate content')),
@@ -473,7 +473,7 @@ class _ConversationStarters extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         scrollDirection: Axis.horizontal,
         itemCount: starters.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) => ActionChip(
           key: Key('starter$index'),
           avatar: const Icon(Icons.auto_awesome_rounded, size: 16),
