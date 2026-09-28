@@ -42,6 +42,8 @@ class ApiConfig {
   static Uri get forgotPasswordVerifyCodeUri => Uri.parse('$baseUrl/api/auth/forgot-password/verify-code');
   static Uri get forgotPasswordResetUri => Uri.parse('$baseUrl/api/auth/forgot-password/reset');
   static Uri get profileMeUri => Uri.parse('$baseUrl/api/profile/me');
+  static Uri get circlesMeUri => Uri.parse('$baseUrl/api/circles/me');
+  static Uri get circlesUri => Uri.parse('$baseUrl/api/circles');
 
   // Chat & Messaging URIs
   static Uri get chatsUri => Uri.parse('$baseUrl/api/v1/chats');

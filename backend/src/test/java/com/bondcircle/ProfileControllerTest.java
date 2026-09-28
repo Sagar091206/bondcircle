@@ -138,6 +138,74 @@ public class ProfileControllerTest {
     }
 
     @Test
+    void testSaveAndRetrieveCompleteProfileWithAllFields() throws Exception {
+        ProfileRequest fullRequest = new ProfileRequest(
+                "Woman",
+                "Queer",
+                "Long-term relationship",
+                "Monogamy",
+                List.of("Coffee", "Books", "Fitness"),
+                26,
+                "Kolkata",
+                "Passionate about storytelling, art, and quiet Sunday mornings.",
+                List.of("Men", "Nonbinary people"),
+                "Open to children",
+                "Spiritual",
+                "Moderate",
+                "Socially",
+                "Never"
+        );
+
+        mockMvc.perform(put("/api/profile/me")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(fullRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.gender", is("Woman")))
+                .andExpect(jsonPath("$.orientation", is("Queer")))
+                .andExpect(jsonPath("$.connectionIntention", is("Long-term relationship")))
+                .andExpect(jsonPath("$.relationshipStyle", is("Monogamy")))
+                .andExpect(jsonPath("$.interests", containsInAnyOrder("Coffee", "Books", "Fitness")))
+                .andExpect(jsonPath("$.age", is(26)))
+                .andExpect(jsonPath("$.city", is("Kolkata")))
+                .andExpect(jsonPath("$.bio", is("Passionate about storytelling, art, and quiet Sunday mornings.")))
+                .andExpect(jsonPath("$.datingPreferences", containsInAnyOrder("Men", "Nonbinary people")))
+                .andExpect(jsonPath("$.childrenPlan", is("Open to children")))
+                .andExpect(jsonPath("$.religion", is("Spiritual")))
+                .andExpect(jsonPath("$.politics", is("Moderate")))
+                .andExpect(jsonPath("$.drinking", is("Socially")))
+                .andExpect(jsonPath("$.smoking", is("Never")));
+
+        // Verify in DB directly
+        UserProfile saved = userProfileRepository.findByUserId(testUser.getId()).orElse(null);
+        assertNotNull(saved);
+        assertEquals(26, saved.getAge());
+        assertEquals("Kolkata", saved.getCity());
+        assertEquals("Passionate about storytelling, art, and quiet Sunday mornings.", saved.getBio());
+        assertEquals(2, saved.getDatingPreferences().size());
+        assertTrue(saved.getDatingPreferences().containsAll(List.of("Men", "Nonbinary people")));
+        assertEquals("Open to children", saved.getChildrenPlan());
+        assertEquals("Spiritual", saved.getReligion());
+        assertEquals("Moderate", saved.getPolitics());
+        assertEquals("Socially", saved.getDrinking());
+        assertEquals("Never", saved.getSmoking());
+
+        // Verify GET retrieves everything
+        mockMvc.perform(get("/api/profile/me")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.age", is(26)))
+                .andExpect(jsonPath("$.city", is("Kolkata")))
+                .andExpect(jsonPath("$.bio", is("Passionate about storytelling, art, and quiet Sunday mornings.")))
+                .andExpect(jsonPath("$.datingPreferences", containsInAnyOrder("Men", "Nonbinary people")))
+                .andExpect(jsonPath("$.childrenPlan", is("Open to children")))
+                .andExpect(jsonPath("$.religion", is("Spiritual")))
+                .andExpect(jsonPath("$.politics", is("Moderate")))
+                .andExpect(jsonPath("$.drinking", is("Socially")))
+                .andExpect(jsonPath("$.smoking", is("Never")));
+    }
+
+    @Test
     void testUpdateExistingProfileDoesNotCreateDuplicate() throws Exception {
         // Save initial
         ProfileRequest initialRequest = new ProfileRequest(

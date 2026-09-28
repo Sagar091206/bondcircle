@@ -7,14 +7,24 @@ import 'package:http/http.dart' as http;
 import '../../../core/config/api_config.dart';
 import '../../auth/domain/auth_session.dart';
 
-/// Data model representing the 5 persisted Profile Setup categories:
-/// Gender, Orientation, Connection Intention, Relationship Style, Interests.
+/// Data model representing the Profile Setup categories:
+/// Gender, Orientation, Connection Intention, Relationship Style, Interests,
+/// Age, City, Bio, Dating Preferences, Children Plan, and Lifestyle.
 class ProfileData {
   final String gender;
   final String orientation;
   final String connectionIntention;
   final String relationshipStyle;
   final List<String> interests;
+  final int? age;
+  final String city;
+  final String bio;
+  final List<String> datingPreferences;
+  final String childrenPlan;
+  final String religion;
+  final String politics;
+  final String drinking;
+  final String smoking;
 
   const ProfileData({
     required this.gender,
@@ -22,6 +32,15 @@ class ProfileData {
     required this.connectionIntention,
     required this.relationshipStyle,
     required this.interests,
+    this.age,
+    this.city = '',
+    this.bio = '',
+    this.datingPreferences = const <String>[],
+    this.childrenPlan = '',
+    this.religion = '',
+    this.politics = '',
+    this.drinking = '',
+    this.smoking = '',
   });
 
   factory ProfileData.fromJson(Map<String, dynamic> json) {
@@ -34,22 +53,46 @@ class ProfileData {
               ?.map((item) => item.toString())
               .toList() ??
           <String>[],
+      age: json['age'] as int?,
+      city: json['city'] as String? ?? '',
+      bio: json['bio'] as String? ?? '',
+      datingPreferences: (json['datingPreferences'] as List<dynamic>?)
+              ?.map((item) => item.toString())
+              .toList() ??
+          <String>[],
+      childrenPlan: json['childrenPlan'] as String? ?? '',
+      religion: json['religion'] as String? ?? '',
+      politics: json['politics'] as String? ?? '',
+      drinking: json['drinking'] as String? ?? '',
+      smoking: json['smoking'] as String? ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    final map = <String, dynamic>{
       'gender': gender,
       'orientation': orientation,
       'connectionIntention': connectionIntention,
       'relationshipStyle': relationshipStyle,
       'interests': interests,
+      'city': city,
+      'bio': bio,
+      'datingPreferences': datingPreferences,
+      'childrenPlan': childrenPlan,
+      'religion': religion,
+      'politics': politics,
+      'drinking': drinking,
+      'smoking': smoking,
     };
+    if (age != null) {
+      map['age'] = age;
+    }
+    return map;
   }
 
   @override
   String toString() =>
-      'ProfileData(gender: $gender, orientation: $orientation, connectionIntention: $connectionIntention, relationshipStyle: $relationshipStyle, interests: $interests)';
+      'ProfileData(gender: $gender, orientation: $orientation, connectionIntention: $connectionIntention, relationshipStyle: $relationshipStyle, interests: $interests, age: $age, city: $city, bio: $bio, datingPreferences: $datingPreferences, childrenPlan: $childrenPlan, religion: $religion, politics: $politics, drinking: $drinking, smoking: $smoking)';
 }
 
 /// Service to interact with the Spring Boot Profile API (/api/profile/me).

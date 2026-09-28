@@ -48,6 +48,9 @@ public class ProfileRealFlowTest {
     private UserProfileRepository userProfileRepository;
 
     @Autowired
+    private com.bondcircle.repository.UserCircleRepository userCircleRepository;
+
+    @Autowired
     private EmailVerificationRepository emailVerificationRepository;
 
     @Autowired
@@ -58,6 +61,7 @@ public class ProfileRealFlowTest {
 
     @BeforeEach
     void setUp() {
+        userCircleRepository.deleteAll();
         userProfileRepository.deleteAll();
         userRepository.deleteAll();
         emailVerificationRepository.deleteAll();
@@ -69,7 +73,7 @@ public class ProfileRealFlowTest {
     }
 
     @Test
-    @DisplayName("Test real complete flow: Sign In -> Profile Setup -> Enter 5 Categories -> Save -> Verify in PostgreSQL -> Restart -> Sign In again -> Retrieve Profile -> Confirm 5 Categories")
+    @DisplayName("Test real complete flow: Sign In -> Profile Setup -> Enter all biodata & lifestyle -> Save -> Verify in PostgreSQL -> Restart -> Sign In again -> Retrieve Profile -> Confirm all fields -> Select Circles -> Save Circles -> Restart -> Confirm Circles retrieved")
     void testRealEndToEndProfileFlow() throws Exception {
         // Step 1: Sign In
         LoginRequest loginRequest = new LoginRequest(TEST_EMAIL, TEST_PASSWORD);
@@ -85,18 +89,22 @@ public class ProfileRealFlowTest {
         assertNotNull(jwtToken);
         assertFalse(jwtToken.isEmpty());
 
-        // Step 2: Profile Setup - Enter/select the 5 categories:
-        // 1. Gender
-        // 2. Orientation
-        // 3. Connection Intention
-        // 4. Relationship Style
-        // 5. Interests (multiple values)
+        // Step 2: Profile Setup - Enter all fields
         ProfileRequest profileRequest = new ProfileRequest(
                 "Woman",
-                "Bisexual",
+                "Queer",
                 "Long-term relationship",
                 "Monogamy",
-                List.of("Coffee", "Books", "Travel")
+                List.of("Coffee", "Books", "Fitness"),
+                26,
+                "Kolkata",
+                "Passionate about storytelling, art, and quiet Sunday mornings.",
+                List.of("Men", "Nonbinary people"),
+                "Open to children",
+                "Spiritual",
+                "Moderate",
+                "Socially",
+                "Never"
         );
 
         // Step 3: Save to Spring Boot API
@@ -106,21 +114,40 @@ public class ProfileRealFlowTest {
                         .content(objectMapper.writeValueAsString(profileRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.gender", is("Woman")))
-                .andExpect(jsonPath("$.orientation", is("Bisexual")))
+                .andExpect(jsonPath("$.orientation", is("Queer")))
                 .andExpect(jsonPath("$.connectionIntention", is("Long-term relationship")))
                 .andExpect(jsonPath("$.relationshipStyle", is("Monogamy")))
-                .andExpect(jsonPath("$.interests", containsInAnyOrder("Coffee", "Books", "Travel")));
+                .andExpect(jsonPath("$.interests", containsInAnyOrder("Coffee", "Books", "Fitness")))
+                .andExpect(jsonPath("$.age", is(26)))
+                .andExpect(jsonPath("$.city", is("Kolkata")))
+                .andExpect(jsonPath("$.bio", is("Passionate about storytelling, art, and quiet Sunday mornings.")))
+                .andExpect(jsonPath("$.datingPreferences", containsInAnyOrder("Men", "Nonbinary people")))
+                .andExpect(jsonPath("$.childrenPlan", is("Open to children")))
+                .andExpect(jsonPath("$.religion", is("Spiritual")))
+                .andExpect(jsonPath("$.politics", is("Moderate")))
+                .andExpect(jsonPath("$.drinking", is("Socially")))
+                .andExpect(jsonPath("$.smoking", is("Never")));
 
         // Step 4: Verify data exists in PostgreSQL
         User persistentUser = userRepository.findByEmail(TEST_EMAIL).orElseThrow();
         UserProfile persistentProfile = userProfileRepository.findByUserId(persistentUser.getId()).orElse(null);
         assertNotNull(persistentProfile, "Profile must be saved in PostgreSQL");
         assertEquals("Woman", persistentProfile.getGender());
-        assertEquals("Bisexual", persistentProfile.getOrientation());
+        assertEquals("Queer", persistentProfile.getOrientation());
         assertEquals("Long-term relationship", persistentProfile.getConnectionIntention());
         assertEquals("Monogamy", persistentProfile.getRelationshipStyle());
         assertEquals(3, persistentProfile.getInterests().size());
-        assertTrue(persistentProfile.getInterests().containsAll(List.of("Coffee", "Books", "Travel")));
+        assertTrue(persistentProfile.getInterests().containsAll(List.of("Coffee", "Books", "Fitness")));
+        assertEquals(26, persistentProfile.getAge());
+        assertEquals("Kolkata", persistentProfile.getCity());
+        assertEquals("Passionate about storytelling, art, and quiet Sunday mornings.", persistentProfile.getBio());
+        assertEquals(2, persistentProfile.getDatingPreferences().size());
+        assertTrue(persistentProfile.getDatingPreferences().containsAll(List.of("Men", "Nonbinary people")));
+        assertEquals("Open to children", persistentProfile.getChildrenPlan());
+        assertEquals("Spiritual", persistentProfile.getReligion());
+        assertEquals("Moderate", persistentProfile.getPolitics());
+        assertEquals("Socially", persistentProfile.getDrinking());
+        assertEquals("Never", persistentProfile.getSmoking());
 
         // Step 5: Restart / reload app (discard old token, simulate app restart)
         jwtToken = null;
@@ -137,15 +164,54 @@ public class ProfileRealFlowTest {
         String newJwtToken = reLoginJson.get("token").asText();
         assertNotNull(newJwtToken);
 
-        // Step 7 & 8: Retrieve profile & Confirm all five categories are still present
+        // Step 7 & 8: Retrieve profile & Confirm all fields are still present
         mockMvc.perform(get("/api/profile/me")
                         .header("Authorization", "Bearer " + newJwtToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.gender", is("Woman")))
-                .andExpect(jsonPath("$.orientation", is("Bisexual")))
+                .andExpect(jsonPath("$.orientation", is("Queer")))
                 .andExpect(jsonPath("$.connectionIntention", is("Long-term relationship")))
                 .andExpect(jsonPath("$.relationshipStyle", is("Monogamy")))
                 .andExpect(jsonPath("$.interests", hasSize(3)))
-                .andExpect(jsonPath("$.interests", containsInAnyOrder("Coffee", "Books", "Travel")));
+                .andExpect(jsonPath("$.interests", containsInAnyOrder("Coffee", "Books", "Fitness")))
+                .andExpect(jsonPath("$.age", is(26)))
+                .andExpect(jsonPath("$.city", is("Kolkata")))
+                .andExpect(jsonPath("$.bio", is("Passionate about storytelling, art, and quiet Sunday mornings.")))
+                .andExpect(jsonPath("$.datingPreferences", containsInAnyOrder("Men", "Nonbinary people")))
+                .andExpect(jsonPath("$.childrenPlan", is("Open to children")))
+                .andExpect(jsonPath("$.religion", is("Spiritual")))
+                .andExpect(jsonPath("$.politics", is("Moderate")))
+                .andExpect(jsonPath("$.drinking", is("Socially")))
+                .andExpect(jsonPath("$.smoking", is("Never")));
+
+        // Step 9: Interest Circles - Select circles & Save
+        com.bondcircle.dto.UpdateCirclesRequest circlesRequest = new com.bondcircle.dto.UpdateCirclesRequest(
+                List.of("Coffee Explorers", "Readers & Stories", "Weekend Trekkers")
+        );
+        mockMvc.perform(put("/api/circles/me")
+                        .header("Authorization", "Bearer " + newJwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(circlesRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.circles", hasSize(3)))
+                .andExpect(jsonPath("$.circles", containsInAnyOrder("Coffee Explorers", "Readers & Stories", "Weekend Trekkers")));
+
+        // Step 10: Verify Circle memberships in PostgreSQL
+        assertEquals(3, userCircleRepository.findByUserId(persistentUser.getId()).size());
+
+        // Step 11: Restart app & Sign In again with third fresh token
+        MvcResult thirdLoginResult = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andReturn();
+        String thirdToken = objectMapper.readTree(thirdLoginResult.getResponse().getContentAsString()).get("token").asText();
+
+        // Step 12: Confirm circles retrieved on reload
+        mockMvc.perform(get("/api/circles/me")
+                        .header("Authorization", "Bearer " + thirdToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.circles", hasSize(3)))
+                .andExpect(jsonPath("$.circles", containsInAnyOrder("Coffee Explorers", "Readers & Stories", "Weekend Trekkers")));
     }
 }

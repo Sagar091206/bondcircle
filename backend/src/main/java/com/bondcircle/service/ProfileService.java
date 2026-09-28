@@ -64,6 +64,42 @@ public class ProfileService {
 
         profile.setInterests(cleanedInterests);
 
+        if (request.getAge() != null) {
+            profile.setAge(request.getAge());
+        }
+        if (request.getCity() != null) {
+            profile.setCity(request.getCity().trim());
+        }
+        if (request.getBio() != null) {
+            profile.setBio(request.getBio().trim());
+        }
+
+        if (request.getDatingPreferences() != null) {
+            List<String> cleanedPreferences = request.getDatingPreferences().stream()
+                    .filter(Objects::nonNull)
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .distinct()
+                    .collect(Collectors.toList());
+            profile.setDatingPreferences(cleanedPreferences);
+        }
+
+        if (request.getChildrenPlan() != null) {
+            profile.setChildrenPlan(request.getChildrenPlan().trim());
+        }
+        if (request.getReligion() != null) {
+            profile.setReligion(request.getReligion().trim());
+        }
+        if (request.getPolitics() != null) {
+            profile.setPolitics(request.getPolitics().trim());
+        }
+        if (request.getDrinking() != null) {
+            profile.setDrinking(request.getDrinking().trim());
+        }
+        if (request.getSmoking() != null) {
+            profile.setSmoking(request.getSmoking().trim());
+        }
+
         UserProfile saved = userProfileRepository.save(profile);
         return ProfileResponse.fromEntity(saved);
     }

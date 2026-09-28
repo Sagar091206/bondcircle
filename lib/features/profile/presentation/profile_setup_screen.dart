@@ -86,6 +86,34 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             }
           }
         }
+        if (profile.age != null && profile.age! > 0) {
+          _ageController.text = profile.age.toString();
+        }
+        if (profile.city.isNotEmpty) {
+          _cityController.text = profile.city;
+        }
+        if (profile.bio.isNotEmpty) {
+          _bioController.text = profile.bio;
+        }
+        if (profile.datingPreferences.isNotEmpty) {
+          _datingPreferences.clear();
+          _datingPreferences.addAll(profile.datingPreferences);
+        }
+        if (profile.childrenPlan.isNotEmpty) {
+          _childrenPlan = profile.childrenPlan;
+        }
+        if (profile.religion.isNotEmpty) {
+          _religion = profile.religion;
+        }
+        if (profile.politics.isNotEmpty) {
+          _politics = profile.politics;
+        }
+        if (profile.drinking.isNotEmpty) {
+          _drinking = profile.drinking;
+        }
+        if (profile.smoking.isNotEmpty) {
+          _smoking = profile.smoking;
+        }
       });
     }
   }
@@ -155,6 +183,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           relationshipStyle: _relationshipStyle!,
           datingPreferences: _datingPreferences.toList(),
           orientation: _sexuality ?? '',
+          childrenPlan: _childrenPlan,
+          religion: _religion,
+          politics: _politics,
+          drinking: _drinking,
+          smoking: _smoking,
           profileApiService: widget.profileApiService,
         ),
       ),
@@ -906,6 +939,11 @@ class ProfilePreviewScreen extends StatefulWidget {
     required this.relationshipStyle,
     required this.datingPreferences,
     this.orientation = '',
+    this.childrenPlan,
+    this.religion,
+    this.politics,
+    this.drinking,
+    this.smoking,
     this.profileApiService,
   });
 
@@ -919,6 +957,11 @@ class ProfilePreviewScreen extends StatefulWidget {
   final String relationshipStyle;
   final List<String> datingPreferences;
   final String orientation;
+  final String? childrenPlan;
+  final String? religion;
+  final String? politics;
+  final String? drinking;
+  final String? smoking;
   final ProfileApiService? profileApiService;
 
   @override
@@ -939,23 +982,55 @@ class _ProfilePreviewScreenState extends State<ProfilePreviewScreen> {
           widget.relationshipStyle.isNotEmpty &&
           widget.interests.isNotEmpty) {
         final service = widget.profileApiService ?? ProfileApiService();
-        await service.saveProfile(
+        final saved = await service.saveProfile(
           ProfileData(
             gender: widget.gender,
             orientation: widget.orientation,
             connectionIntention: widget.datingIntention,
             relationshipStyle: widget.relationshipStyle,
             interests: widget.interests,
+            age: int.tryParse(widget.age),
+            city: widget.city,
+            bio: widget.bio,
+            datingPreferences: widget.datingPreferences,
+            childrenPlan: widget.childrenPlan ?? '',
+            religion: widget.religion ?? '',
+            politics: widget.politics ?? '',
+            drinking: widget.drinking ?? '',
+            smoking: widget.smoking ?? '',
           ),
         );
+        if (saved == null) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Failed to save profile. Please check your connection and try again.'),
+                backgroundColor: Colors.redAccent,
+              ),
+            );
+          }
+          return;
+        }
       }
-    } finally {
       if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute<void>(
             builder: (_) => InterestCirclesScreen(displayName: widget.name),
           ),
         );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('An error occurred while saving your profile. Please try again.'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
       }
     }
   }
@@ -1024,8 +1099,22 @@ class _ProfilePreviewScreenState extends State<ProfilePreviewScreen> {
                   Icons.people_alt_outlined,
                   'Open to',
                   widget.datingPreferences.join(', '),
-                  last: true,
+                  last: (widget.childrenPlan == null || widget.childrenPlan!.isEmpty) &&
+                      (widget.religion == null || widget.religion!.isEmpty) &&
+                      (widget.politics == null || widget.politics!.isEmpty) &&
+                      (widget.drinking == null || widget.drinking!.isEmpty) &&
+                      (widget.smoking == null || widget.smoking!.isEmpty),
                 ),
+                if (widget.childrenPlan != null && widget.childrenPlan!.isNotEmpty)
+                  _PreviewDetail(Icons.family_restroom_rounded, 'Children', widget.childrenPlan!),
+                if (widget.religion != null && widget.religion!.isNotEmpty)
+                  _PreviewDetail(Icons.diversity_3_outlined, 'Beliefs', widget.religion!),
+                if (widget.politics != null && widget.politics!.isNotEmpty)
+                  _PreviewDetail(Icons.policy_outlined, 'Politics', widget.politics!),
+                if (widget.drinking != null && widget.drinking!.isNotEmpty)
+                  _PreviewDetail(Icons.local_bar_outlined, 'Drinking', widget.drinking!),
+                if (widget.smoking != null && widget.smoking!.isNotEmpty)
+                  _PreviewDetail(Icons.smoking_rooms_outlined, 'Smoking', widget.smoking!, last: true),
               ],
             ),
           ),

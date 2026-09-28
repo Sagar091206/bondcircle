@@ -36,7 +36,41 @@ public class UserProfile {
             joinColumns = @JoinColumn(name = "profile_id")
     )
     @Column(name = "interest", nullable = false)
+    @org.hibernate.annotations.Fetch(org.hibernate.annotations.FetchMode.SUBSELECT)
     private List<String> interests = new ArrayList<>();
+
+    @Column(name = "age")
+    private Integer age;
+
+    @Column(name = "city")
+    private String city;
+
+    @Column(name = "bio", length = 1000)
+    private String bio;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "user_profile_dating_preferences",
+            joinColumns = @JoinColumn(name = "profile_id")
+    )
+    @Column(name = "dating_preference", nullable = false)
+    @org.hibernate.annotations.Fetch(org.hibernate.annotations.FetchMode.SUBSELECT)
+    private List<String> datingPreferences = new ArrayList<>();
+
+    @Column(name = "children_plan")
+    private String childrenPlan;
+
+    @Column(name = "religion")
+    private String religion;
+
+    @Column(name = "politics")
+    private String politics;
+
+    @Column(name = "drinking")
+    private String drinking;
+
+    @Column(name = "smoking")
+    private String smoking;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -58,6 +92,26 @@ public class UserProfile {
         this.connectionIntention = connectionIntention;
         this.relationshipStyle = relationshipStyle;
         this.interests = interests != null ? new ArrayList<>(interests) : new ArrayList<>();
+    }
+
+    public UserProfile(User user, String gender, String orientation, String connectionIntention, String relationshipStyle, List<String> interests,
+                       Integer age, String city, String bio, List<String> datingPreferences, String childrenPlan,
+                       String religion, String politics, String drinking, String smoking) {
+        this.user = user;
+        this.gender = gender;
+        this.orientation = orientation;
+        this.connectionIntention = connectionIntention;
+        this.relationshipStyle = relationshipStyle;
+        this.interests = interests != null ? new ArrayList<>(interests) : new ArrayList<>();
+        this.age = age;
+        this.city = city;
+        this.bio = bio;
+        this.datingPreferences = datingPreferences != null ? new ArrayList<>(datingPreferences) : new ArrayList<>();
+        this.childrenPlan = childrenPlan;
+        this.religion = religion;
+        this.politics = politics;
+        this.drinking = drinking;
+        this.smoking = smoking;
     }
 
     @PrePersist
@@ -125,6 +179,78 @@ public class UserProfile {
 
     public void setInterests(List<String> interests) {
         this.interests = interests != null ? new ArrayList<>(interests) : new ArrayList<>();
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public List<String> getDatingPreferences() {
+        return datingPreferences;
+    }
+
+    public void setDatingPreferences(List<String> datingPreferences) {
+        this.datingPreferences = datingPreferences != null ? new ArrayList<>(datingPreferences) : new ArrayList<>();
+    }
+
+    public String getChildrenPlan() {
+        return childrenPlan;
+    }
+
+    public void setChildrenPlan(String childrenPlan) {
+        this.childrenPlan = childrenPlan;
+    }
+
+    public String getReligion() {
+        return religion;
+    }
+
+    public void setReligion(String religion) {
+        this.religion = religion;
+    }
+
+    public String getPolitics() {
+        return politics;
+    }
+
+    public void setPolitics(String politics) {
+        this.politics = politics;
+    }
+
+    public String getDrinking() {
+        return drinking;
+    }
+
+    public void setDrinking(String drinking) {
+        this.drinking = drinking;
+    }
+
+    public String getSmoking() {
+        return smoking;
+    }
+
+    public void setSmoking(String smoking) {
+        this.smoking = smoking;
     }
 
     public LocalDateTime getCreatedAt() {

@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/bondcircle_theme.dart';
+import '../../auth/domain/auth_session.dart';
 import '../../discover/presentation/discover_screen.dart';
 import '../../blind_bond/presentation/blind_bond_screen.dart';
+import '../data/circle_api_service.dart';
 
 class InterestCirclesScreen extends StatefulWidget {
-  const InterestCirclesScreen({super.key, required this.displayName});
+  const InterestCirclesScreen({
+    super.key,
+    required this.displayName,
+    this.circleApiService,
+  });
 
   final String displayName;
+  final CircleApiService? circleApiService;
 
   @override
   State<InterestCirclesScreen> createState() => _InterestCirclesScreenState();
@@ -98,6 +105,24 @@ class _InterestCirclesScreenState extends State<InterestCirclesScreen> {
   final Set<String> _joined = {};
   String _category = 'All';
   String _query = '';
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadJoinedCircles();
+  }
+
+  Future<void> _loadJoinedCircles() async {
+    if (!AuthSession.instance.isAuthenticated) return;
+    final service = widget.circleApiService ?? CircleApiService();
+    final circles = await service.getJoinedCircles();
+    if (circles != null && mounted) {
+      setState(() {
+        _joined.addAll(circles);
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -117,21 +142,57 @@ class _InterestCirclesScreenState extends State<InterestCirclesScreen> {
     }).toList();
   }
 
-  void _continue() {
+  Future<void> _continue() async {
     if (_joined.length < 2) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Join at least 2 circles to continue.')),
       );
       return;
     }
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => _CirclesCompleteScreen(
-          displayName: widget.displayName,
-          circles: _joined.toList(),
-        ),
-      ),
-    );
+    if (_isSaving) return;
+    setState(() => _isSaving = true);
+
+    try {
+      if (AuthSession.instance.isAuthenticated) {
+        final service = widget.circleApiService ?? CircleApiService();
+        final result = await service.updateJoinedCircles(_joined.toList());
+        if (result == null) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Failed to save circle selections. Please check your connection and try again.'),
+                backgroundColor: Colors.redAccent,
+              ),
+            );
+          }
+          return;
+        }
+      }
+
+      if (mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => _CirclesCompleteScreen(
+              displayName: widget.displayName,
+              circles: _joined.toList(),
+            ),
+          ),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('An error occurred while saving circles. Please try again.'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
   }
 
   @override
@@ -262,12 +323,21 @@ class _InterestCirclesScreenState extends State<InterestCirclesScreen> {
               ),
               child: FilledButton(
                 key: const Key('continueFromCirclesButton'),
-                onPressed: _continue,
-                child: Text(
-                  _joined.isEmpty
-                      ? 'Choose at least 2 circles'
-                      : 'Continue with ${_joined.length} circles',
-                ),
+                onPressed: _isSaving ? null : _continue,
+                child: _isSaving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(
+                        _joined.isEmpty
+                            ? 'Choose at least 2 circles'
+                            : 'Continue with ${_joined.length} circles',
+                      ),
               ),
             ),
           ],
